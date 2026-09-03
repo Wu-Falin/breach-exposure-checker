@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<!--
+  ==========================================================================
+  Personal Breach-Exposure Checker
+  --------------------------------------------------------------------------
+  ETHICAL / SCOPE GUARDRAIL
+
+  This tool is built to check ONLY credentials that the user personally owns
+  and enters themselves. It must never be modified into a bulk-checker that
+  runs lists of other people's emails / passwords / NIK numbers — that would
+  cross from a personal security tool into a tool for attacking others, which
+  is illegal and out of scope for this project.
+
+  The single-value inputs on this page are a deliberate design constraint.
+  ==========================================================================
+
+  PRIVACY MECHANISM (k-anonymity):
+    SHA-1(password) is computed in the browser. Only the first 5 hex
+    characters of that hash are sent to api.pwnedpasswords.com. The server
+    returns every breached hash sharing that prefix; the final comparison
+    happens locally. The password and the full hash never leave this tab.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breach-Exposure Checker</title>
+<meta name="description" content="Check whether your own password appears in known data breaches, without sending it anywhere.">
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="scanline" aria-hidden="true"></div>
+
+<header class="masthead">
+  <div class="masthead-line">
+    <span class="prompt">$</span>
+    <h1>breach-exposure-checker</h1>
+    <span class="version">v1.0</span>
+  </div>
+  <p class="tagline">
+    Check whether <em>your own</em> password has appeared in a known public
+    breach &mdash; without the password, or its full hash, ever leaving this tab.
+  </p>
+</header>
+
+<main>
+
+  <!-- ================= PASSWORD CHECK (the core feature) ================= -->
+  <section class="panel panel-primary" aria-labelledby="check-title">
+    <h2 id="check-title" class="panel-title">
+      <span class="panel-title-marker">01</span> Password exposure check
+    </h2>
+
+    <div class="field-row">
+      <label class="sr-only" for="password-input">Your password</label>
+      <input
+        id="password-input"
+        type="password"
+        placeholder="type a password you own"
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        data-lpignore="true"
+      >
+      <button id="toggle-visibility" type="button" class="btn btn-ghost"
+              aria-pressed="false" aria-controls="password-input">show</button>
+    </div>
+
+    <div class="controls">
+      <button id="check-btn" type="button" class="btn btn-primary">Check exposure</button>
+      <button id="clear-btn" type="button" class="btn btn-ghost">Clear</button>
+
+      <label class="checkbox">
+        <input id="auto-check" type="checkbox">
+        <span>check as I type <small>(debounced 700&nbsp;ms)</small></span>
+      </label>
+    </div>
+
+    <p class="demo-row">
+      Safe demo values &mdash; public throwaways, never a real credential:
+      <button type="button" class="chip" data-demo="password123">password123</button>
+      <button type="button" class="chip" data-demo="Tr0ub4dor&amp;3">Tr0ub4dor&amp;3</button>
+      <button type="button" class="chip" data-demo="correct-horse-battery-staple-9182">correct-horse-battery-staple-9182</button>
+    </p>
+
+    <div id="result" class="result" role="status" aria-live="polite">
+      <div id="result-headline" class="result-headline">Awaiting input</div>
+      <div id="result-detail" class="result-detail">Nothing has been sent yet.</div>
+    </div>
+  </section>
+
+  <!-- ================= HOW THIS WORKS (the interview demo) ================= -->
+  <section class="panel" aria-labelledby="how-title">
+    <h2 id="how-title" class="panel-title">
+      <span class="panel-title-marker">02</span> How this works
+      <span class="panel-title-note">live &mdash; updates as you type</span>
+    </h2>
+
+    <ol class="steps">
+      <li class="step">
+        <div class="step-label"><span class="step-num">1</span> Your password</div>
+        <div class="step-value" id="step-password">(empty)</div>
+        <div class="step-note stays">stays on this device</div>
+      </li>
+
+      <li class="step">
+        <div class="step-label"><span class="step-num">2</span> SHA-1, computed in your browser</div>
+        <div class="step-value hash">
+          <span class="hash-prefix" id="step-hash-prefix"></span><span class="hash-suffix" id="step-hash-suffix">&mdash;</span>
+        </div>
+        <div class="step-note">
+          <span class="legend-swatch legend-sent"></span> first 5 chars = sent
+          &nbsp;&nbsp;
+          <span class="legend-swatch legend-kept"></span> remaining 35 = kept local
+          <br>engine: <span id="step-engine">&mdash;</span>
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-label"><span class="step-num">3</span> The only request that leaves your device</div>
+        <div class="step-value request">
+          <span class="method">GET</span> <span id="step-url">https://api.pwnedpasswords.com/range/&hellip;</span>
+        </div>
+        <div class="step-note sent">
+          5 characters out of 40. No password, no full hash, no API key, no cookies.
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-label"><span class="step-num">4</span> What comes back</div>
+        <div class="step-value" id="step-response">&mdash;</div>
+        <div class="step-note">
+          Every breached hash sharing your 5-char prefix &mdash; typically one
+          to three thousand of them.
+        </div>
+      </li>
+
+      <li class="step">
+        <div class="step-label"><span class="step-num">5</span> The comparison, done locally</div>
+        <div class="step-value" id="step-match">&mdash;</div>
+        <div class="step-note stays">
+          Your 35-char suffix is compared against that list here, in the browser.
+        </div>
+      </li>
+    </ol>
+
+    <div class="explainer">
+      <h3>Why this is called k-anonymity</h3>
+      <p>
+        A naive breach checker asks the server &ldquo;is <em>this</em> password
+        breached?&rdquo; &mdash; which hands your secret (or a trivially
+        crackable hash of it) to a third party and to anyone watching the wire.
+        A password you were worried about is now a password somebody else has.
+      </p>
+      <p>
+        k&#8209;anonymity flips the question around. Instead of asking about one
+        hash, you ask for a <em>bucket</em>: &ldquo;give me every breached hash
+        that starts with <code>5BAA6</code>.&rdquo; The server has no way to
+        know which of the ~2,000 answers you cared about, or whether
+        yours was in the list at all. Your query hides in a crowd of size
+        <em>k</em> &mdash; and the tool prints the exact <em>k</em> for each
+        lookup above, so you can verify the claim instead of trusting it.
+      </p>
+      <p class="explainer-caveat">
+        <strong>Read the result honestly.</strong> &ldquo;Not found&rdquo; means
+        <em>not in this dataset</em>. It is not a verdict that a password is
+        strong, and a breach that was never published cannot appear here.
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= ACTIVITY LOG ================= -->
+  <section class="panel" aria-labelledby="log-title">
+    <h2 id="log-title" class="panel-title">
+      <span class="panel-title-marker">03</span> Activity log
+      <span class="panel-title-note">local only &mdash; never uploaded</span>
+    </h2>
+    <div id="log" class="log" role="log" aria-live="off"></div>
+  </section>
+
+  <!-- ================= STRETCH GOAL: EMAIL LOOKUP ================= -->
+  <section class="panel panel-optional" aria-labelledby="email-title">
+    <h2 id="email-title" class="panel-title">
+      <span class="panel-title-marker">04</span> Email breach lookup
+      <span class="badge badge-warn">optional &mdash; requires your own API key</span>
+    </h2>
+
+    <details>
+      <summary>Expand (separate feature &mdash; different privacy model)</summary>
+
+      <div class="warning-box">
+        <p>
+          <strong>This is not the k-anonymity feature.</strong> The official
+          Have I Been Pwned v3 breach API has no range mode for email
+          addresses, so the <strong>full address is sent</strong> to the API,
+          and the request needs a <strong>paid API key that you supply
+          yourself</strong>. Nothing is hardcoded in this repo, and the key is
+          held in memory only &mdash; it is never written to localStorage, a
+          cookie, or the URL, and it is wiped after each request.
+        </p>
+        <p>
+          <strong>Scope:</strong> your own address only. Do not paste anyone
+          else's.
+        </p>
+        <p>
+          <strong>Expect a CORS failure against the direct URL.</strong>
+          haveibeenpwned.com deliberately sends no CORS headers, so browsers
+          cannot call it directly regardless of key validity. Point
+          &ldquo;API base&rdquo; at a small proxy of your own &mdash; see
+          <code>docs/hibp-proxy-example.md</code>.
+        </p>
+      </div>
+
+      <form id="email-form" autocomplete="off">
+        <div class="field-stack">
+          <label for="email-input">Your email address</label>
+          <input id="email-input" type="email" placeholder="you@example.com"
+                 autocomplete="off" spellcheck="false">
+        </div>
+
+        <div class="field-stack">
+          <label for="email-key">Your HIBP API key <small>(never stored)</small></label>
+          <input id="email-key" type="password" placeholder="paste your own key"
+                 autocomplete="off" spellcheck="false" data-lpignore="true">
+        </div>
+
+        <div class="field-stack">
+          <label for="email-base">API base <small>(your proxy, or the direct URL)</small></label>
+          <input id="email-base" type="url"
+                 value="https://haveibeenpwned.com/api/v3"
+                 spellcheck="false">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Look up email</button>
+      </form>
+
+      <div id="email-result" class="email-result"></div>
+    </details>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <p class="footer-guardrail">
+    <strong>Scope &amp; ethics.</strong> This tool checks only credentials the
+    user personally owns and enters themselves. It must never be modified into
+    a bulk-checker that runs lists of other people's emails, passwords, or NIK
+    numbers &mdash; that crosses from a personal security tool into a tool for
+    attacking others, which is illegal and out of scope for this project.
+  </p>
+  <p class="footer-meta">
+    Password data &copy; <a href="https://haveibeenpwned.com/Passwords"
+    rel="noopener noreferrer" target="_blank">Have I Been Pwned</a> (Pwned
+    Passwords, free, no key required). No analytics, no cookies, no backend.
+  </p>
+</footer>
+
+<!--
+  Classic scripts, deliberately not ES modules: modules are blocked by CORS
+  when the page is opened over file://, and this demo should work on a
+  double-click as well as behind a local server.
+-->
+<script src="js/sha1.js"></script>
+<script src="js/pwned.js"></script>
+<script src="js/hibp-email.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

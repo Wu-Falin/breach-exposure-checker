@@ -1,0 +1,16 @@
+# Never commit an API key, a proxy config, or a local env file.
+.env
+.env.*
+*.key
+secrets.json
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Node, if a proxy or tooling is ever added
+node_modules/
+npm-debug.log*
