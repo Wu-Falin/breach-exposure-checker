@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <!--
   ==========================================================================
-  Personal Breach-Exposure Checker
+  Personal Breach Exposure Checker
   --------------------------------------------------------------------------
   ETHICAL / SCOPE GUARDRAIL
 
   This tool is built to check ONLY credentials that the user personally owns
-  and enters themselves. It must never be modified into a bulk-checker that
-  runs lists of other people's emails / passwords / NIK numbers — that would
+  and enters themselves. It must never be modified into a bulk checker that
+  runs lists of other people's emails / passwords / NIK numbers. That would
   cross from a personal security tool into a tool for attacking others, which
   is illegal and out of scope for this project.
 
-  The single-value inputs on this page are a deliberate design constraint.
+  The single value inputs on this page are a deliberate design constraint.
   ==========================================================================
 
   PRIVACY MECHANISM (k-anonymity):
@@ -24,7 +24,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Breach-Exposure Checker</title>
+<title>Breach Exposure Checker</title>
 <meta name="description" content="Check whether your own password appears in known data breaches, without sending it anywhere.">
 <meta name="referrer" content="no-referrer">
 <link rel="stylesheet" href="css/styles.css">
@@ -41,7 +41,7 @@
   </div>
   <p class="tagline">
     Check whether <em>your own</em> password has appeared in a known public
-    breach &mdash; without the password, or its full hash, ever leaving this tab.
+    breach, without the password, or its full hash, ever leaving this tab.
   </p>
 </header>
 
@@ -80,7 +80,7 @@
     </div>
 
     <p class="demo-row">
-      Safe demo values &mdash; public throwaways, never a real credential:
+      Safe demo values, public throwaways that are never a real credential:
       <button type="button" class="chip" data-demo="password123">password123</button>
       <button type="button" class="chip" data-demo="Tr0ub4dor&amp;3">Tr0ub4dor&amp;3</button>
       <button type="button" class="chip" data-demo="correct-horse-battery-staple-9182">correct-horse-battery-staple-9182</button>
@@ -96,7 +96,7 @@
   <section class="panel" aria-labelledby="how-title">
     <h2 id="how-title" class="panel-title">
       <span class="panel-title-marker">02</span> How this works
-      <span class="panel-title-note">live &mdash; updates as you type</span>
+      <span class="panel-title-note">live, updates as you type</span>
     </h2>
 
     <ol class="steps">
@@ -133,7 +133,7 @@
         <div class="step-label"><span class="step-num">4</span> What comes back</div>
         <div class="step-value" id="step-response">&mdash;</div>
         <div class="step-note">
-          Every breached hash sharing your 5-char prefix &mdash; typically one
+          Every breached hash sharing your 5 character prefix, typically one
           to three thousand of them.
         </div>
       </li>
@@ -142,7 +142,7 @@
         <div class="step-label"><span class="step-num">5</span> The comparison, done locally</div>
         <div class="step-value" id="step-match">&mdash;</div>
         <div class="step-note stays">
-          Your 35-char suffix is compared against that list here, in the browser.
+          Your 35 character suffix is compared against that list here, in the browser.
         </div>
       </li>
     </ol>
@@ -151,7 +151,7 @@
       <h3>Why this is called k-anonymity</h3>
       <p>
         A naive breach checker asks the server &ldquo;is <em>this</em> password
-        breached?&rdquo; &mdash; which hands your secret (or a trivially
+        breached?&rdquo; That hands your secret (or a trivially
         crackable hash of it) to a third party and to anyone watching the wire.
         A password you were worried about is now a password somebody else has.
       </p>
@@ -161,7 +161,7 @@
         that starts with <code>5BAA6</code>.&rdquo; The server has no way to
         know which of the ~2,000 answers you cared about, or whether
         yours was in the list at all. Your query hides in a crowd of size
-        <em>k</em> &mdash; and the tool prints the exact <em>k</em> for each
+        <em>k</em>, and the tool prints the exact <em>k</em> for each
         lookup above, so you can verify the claim instead of trusting it.
       </p>
       <p class="explainer-caveat">
@@ -176,7 +176,7 @@
   <section class="panel" aria-labelledby="log-title">
     <h2 id="log-title" class="panel-title">
       <span class="panel-title-marker">03</span> Activity log
-      <span class="panel-title-note">local only &mdash; never uploaded</span>
+      <span class="panel-title-note">local only, never uploaded</span>
     </h2>
     <div id="log" class="log" role="log" aria-live="off"></div>
   </section>
@@ -185,11 +185,11 @@
   <section class="panel panel-optional" aria-labelledby="email-title">
     <h2 id="email-title" class="panel-title">
       <span class="panel-title-marker">04</span> Email breach lookup
-      <span class="badge badge-warn">optional &mdash; requires your own API key</span>
+      <span class="badge badge-warn">optional, requires your own API key</span>
     </h2>
 
     <details>
-      <summary>Expand (separate feature &mdash; different privacy model)</summary>
+      <summary>Expand (a separate feature with a different privacy model)</summary>
 
       <div class="warning-box">
         <p>
@@ -198,7 +198,7 @@
           addresses, so the <strong>full address is sent</strong> to the API,
           and the request needs a <strong>paid API key that you supply
           yourself</strong>. Nothing is hardcoded in this repo, and the key is
-          held in memory only &mdash; it is never written to localStorage, a
+          held in memory only; it is never written to localStorage, a
           cookie, or the URL, and it is wiped after each request.
         </p>
         <p>
@@ -209,7 +209,7 @@
           <strong>Expect a CORS failure against the direct URL.</strong>
           haveibeenpwned.com deliberately sends no CORS headers, so browsers
           cannot call it directly regardless of key validity. Point
-          &ldquo;API base&rdquo; at a small proxy of your own &mdash; see
+          &ldquo;API base&rdquo; at a small proxy of your own. See
           <code>docs/hibp-proxy-example.md</code>.
         </p>
       </div>
@@ -247,8 +247,8 @@
   <p class="footer-guardrail">
     <strong>Scope &amp; ethics.</strong> This tool checks only credentials the
     user personally owns and enters themselves. It must never be modified into
-    a bulk-checker that runs lists of other people's emails, passwords, or NIK
-    numbers &mdash; that crosses from a personal security tool into a tool for
+    a bulk checker that runs lists of other people's emails, passwords, or NIK
+    numbers. That crosses from a personal security tool into a tool for
     attacking others, which is illegal and out of scope for this project.
   </p>
   <p class="footer-meta">
@@ -261,7 +261,7 @@
 <!--
   Classic scripts, deliberately not ES modules: modules are blocked by CORS
   when the page is opened over file://, and this demo should work on a
-  double-click as well as behind a local server.
+  double click as well as behind a local server.
 -->
 <script src="js/sha1.js"></script>
 <script src="js/pwned.js"></script>

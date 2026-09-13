@@ -1,5 +1,5 @@
 /*
- * sha1.js — SHA-1 hashing, entirely client-side.
+ * sha1.js: SHA-1 hashing, entirely on the client side.
  *
  * SCOPE GUARDRAIL (see README): this file exists so that a password the user
  * typed about themselves can be hashed ON THEIR OWN DEVICE. Nothing here
@@ -8,18 +8,18 @@
  *
  * Two implementations are provided:
  *
- *   1. window.crypto.subtle.digest('SHA-1', ...) — the browser's native,
- *      constant-time-ish, audited implementation. Preferred whenever it
- *      exists.
- *   2. A small pure-JavaScript SHA-1 (RFC 3174) fallback. This matters
+ *   1. window.crypto.subtle.digest('SHA-1', ...), the browser's native,
+ *      audited implementation that runs in close to constant time. Preferred
+ *      whenever it exists.
+ *   2. A small pure JavaScript SHA-1 (RFC 3174) fallback. This matters
  *      because WebCrypto is only exposed in a "secure context" (https:// or
- *      http://localhost). If someone double-clicks index.html and the page
+ *      http://localhost). If someone double clicks index.html and the page
  *      loads over file://, crypto.subtle is undefined in Chrome and the app
  *      would otherwise be dead on arrival. The fallback keeps the demo
  *      working with zero setup.
  *
- * Why SHA-1 at all? Not because it is a good password hash — it absolutely is
- * not (fast, unsalted, collision-broken). It is used here only because the
+ * Why SHA-1 at all? Not because it is a good password hash. It absolutely is
+ * not (fast, unsalted, collision broken). It is used here only because the
  * Have I Been Pwned "Pwned Passwords" corpus is indexed by SHA-1, so we must
  * speak the same dialect to query it. This is a lookup key, not a credential
  * storage scheme.
@@ -33,7 +33,7 @@
     return new TextEncoder().encode(str);
   }
 
-  /** Uint8Array -> uppercase hex string. */
+  /** Converts a Uint8Array to an uppercase hex string. */
   function bytesToHex(bytes) {
     let out = '';
     for (let i = 0; i < bytes.length; i++) {
@@ -43,13 +43,13 @@
   }
 
   /**
-   * Pure-JS SHA-1 over a byte array. Returns uppercase hex.
+   * Pure JS SHA-1 over a byte array. Returns uppercase hex.
    * Straight transcription of RFC 3174; kept verbose so it is auditable.
    */
   function sha1BytesSync(bytes) {
     const messageLen = bytes.length;
 
-    // Padding: 0x80, then zeros, then a 64-bit big-endian bit length,
+    // Padding: 0x80, then zeros, then a 64 bit big endian bit length,
     // so the total is a multiple of 64 bytes.
     const blockCount = Math.floor((messageLen + 8) / 64) + 1;
     const padded = new Uint8Array(blockCount * 64);
@@ -142,7 +142,7 @@
         const digest = await global.crypto.subtle.digest('SHA-1', bytes);
         return { hash: bytesToHex(new Uint8Array(digest)), engine: 'webcrypto' };
       } catch (err) {
-        // Some locked-down contexts expose subtle but refuse SHA-1.
+        // Some locked down contexts expose subtle but refuse SHA-1.
         // Fall through to the JS implementation rather than failing the app.
       }
     }

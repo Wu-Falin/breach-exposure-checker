@@ -1,7 +1,7 @@
 # Minimal HIBP proxy (for the optional email lookup only)
 
 > **You do not need this file for the password check.** The password feature
-> uses the free `api.pwnedpasswords.com` range endpoint, which is CORS-enabled,
+> uses the free `api.pwnedpasswords.com` range endpoint, which supports CORS,
 > needs no key, and runs entirely from the browser. This document is only for
 > the optional stretch feature in panel 04.
 
@@ -11,7 +11,7 @@
 `Access-Control-Allow-Origin` headers. A browser will therefore block the
 response no matter how valid your API key is. The API also requires a
 `user-agent` header, which browsers forbid scripts from setting. Both problems
-go away when the call is made server-side.
+go away when the call is made on the server side.
 
 A second, better reason: putting your paid API key in a page means shipping it
 to anyone who opens the page. Keeping it on the server is the only way it stays
@@ -20,7 +20,7 @@ yours.
 ## Node example (~25 lines)
 
 ```js
-// proxy.js — run with:  HIBP_KEY=your-key node proxy.js
+// proxy.js: run with  HIBP_KEY=your-key node proxy.js
 // Then set "API base" in the app to: http://localhost:8787
 import http from 'node:http';
 
@@ -54,8 +54,8 @@ http.createServer(async (req, res) => {
   repository, never in a client bundle, never in a URL.
 - Bind to `localhost` unless you have a reason not to. An exposed proxy is
   somebody else's free HIBP subscription.
-- Rate-limit it. HIBP's own limit is per key, and you will be the one getting
+- Rate limit it. HIBP's own limit is per key, and you will be the one getting
   429s.
-- **Keep the single-address constraint.** Do not add a batch endpoint. See the
-  scope note in the main README — this project checks your own accounts, not
+- **Keep the single address constraint.** Do not add a batch endpoint. See the
+  scope note in the main README. This project checks your own accounts, not
   other people's.

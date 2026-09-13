@@ -1,5 +1,5 @@
 /*
- * app.js — UI wiring for the Personal Breach-Exposure Checker.
+ * app.js: UI wiring for the Personal Breach Exposure Checker.
  *
  * ==========================================================================
  * ETHICAL / SCOPE GUARDRAIL
@@ -7,19 +7,19 @@
  * This tool is built to check ONLY credentials that the person using it
  * personally owns and enters themselves. It must never be modified into a
  * bulk checker that runs lists of other people's emails, passwords, or NIK /
- * national-ID numbers. That would cross the line from a personal security
- * tool into a tool for attacking other people — which is illegal, violates
+ * national ID numbers. That would cross the line from a personal security
+ * tool into a tool for attacking other people. That is illegal, violates
  * the Have I Been Pwned terms of use, and is explicitly out of scope for this
- * project. The single-value input on this page is a design decision, not an
+ * project. The single value input on this page is a design decision, not an
  * oversight: do not "improve" it into a file upload or a list runner.
  * ==========================================================================
  *
  * Structure of this file:
  *   1. Element handles
- *   2. Live local hashing (no network) — feeds the "How this works" panel
- *   3. The network check, debounced and rate-limited
+ *   2. Live local hashing (no network), feeds the "How this works" panel
+ *   3. The network check, debounced and rate limited
  *   4. Result rendering
- *   5. Optional email lookup (stretch goal, user-supplied API key)
+ *   5. Optional email lookup (stretch goal, user supplied API key)
  */
 
 (function () {
@@ -49,7 +49,7 @@
 
   const logEl           = $('log');
 
-  // Stretch-goal elements
+  // Stretch goal elements
   const emailForm       = $('email-form');
   const emailInput      = $('email-input');
   const emailKeyInput   = $('email-key');
@@ -94,8 +94,8 @@
   // --- 2. Live local hashing (NO network) ---------------------------------
   //
   // This runs on every keystroke, but it only touches the CPU. It exists so
-  // the "How this works" panel can show the hash forming in real time — the
-  // point being that the user can watch the full hash sit there locally while
+  // the "How this works" panel can show the hash forming in real time. The
+  // point is that the user can watch the full hash sit there locally while
   // only 5 characters ever appear in the request line.
 
   let currentHash = '';
@@ -117,7 +117,7 @@
     const { hash, engine } = await window.Sha1.sha1Hex(password);
     currentHash = hash;
 
-    // Never render the password itself — only its shape. The whole pitch of
+    // Never render the password itself, only its shape. The whole pitch of
     // this tool is "your secret stays secret", including from a shoulder
     // surfer looking at the explainer panel.
     stepPassword.textContent = '•'.repeat(Math.min(password.length, 32)) +
@@ -226,8 +226,8 @@
     }
   }
 
-  // Debounced variant, used only by the opt-in "check as I type" mode.
-  // 700 ms of quiet is roughly a deliberate pause, so a 16-character password
+  // Debounced variant, used only by the optional "check as I type" mode.
+  // 700 ms of quiet is roughly a deliberate pause, so a 16 character password
   // costs one request instead of sixteen.
   const debouncedCheck = debounce(runCheck, 700);
 
@@ -236,7 +236,7 @@
   passwordInput.addEventListener('input', () => {
     refreshLocalHash();               // local, instant, free
     if (autoCheckBox.checked) {
-      debouncedCheck();               // network, debounced + rate-limited
+      debouncedCheck();               // network, debounced + rate limited
     }
   });
 
@@ -281,7 +281,7 @@
     log('Input cleared.');
   });
 
-  // Demo-password buttons — safe, publicly-known strings for screenshots.
+  // Demo password buttons: safe, publicly known strings for screenshots.
   document.querySelectorAll('[data-demo]').forEach((btn) => {
     btn.addEventListener('click', () => {
       passwordInput.value = btn.getAttribute('data-demo');

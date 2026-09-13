@@ -1,5 +1,5 @@
 /*
- * pwned.js — the k-anonymity range client for the Pwned Passwords API.
+ * pwned.js: the k-anonymity range client for the Pwned Passwords API.
  *
  * SCOPE GUARDRAIL (see README): this client is built to answer one question
  * about ONE credential that the person at the keyboard owns and typed
@@ -10,10 +10,10 @@
  * THE PRIVACY PROPERTY, IN ONE PARAGRAPH
  * ----------------------------------------------------------------------
  * We compute SHA-1(password) locally and send ONLY the first 5 hex
- * characters. The server answers with every known-breached hash that starts
- * with those 5 characters -- in the current corpus that is roughly 800-3,000
- * candidates. It cannot tell which one (if any) is ours, and it never sees
- * the password or the full hash. The final comparison happens in this file,
+ * characters. The server answers with every breached hash that starts
+ * with those 5 characters. In the current corpus that is roughly 800 to
+ * 3,000 candidates. It cannot tell which one (if any) is ours, and it never
+ * sees the password or the full hash. The final comparison happens in this file,
  * in the browser, against the downloaded list. That is k-anonymity: our query
  * is hidden inside a crowd of k other possible answers.
  *
@@ -26,12 +26,12 @@
 
   const ENDPOINT = 'https://api.pwnedpasswords.com/range/';
 
-  // Minimum wall-clock gap between two outbound requests. The range API is
+  // Minimum wall clock gap between two outbound requests. The range API is
   // generous, but hammering a free public service on every keystroke is
   // rude and makes the tool look amateur in a demo.
   const MIN_REQUEST_INTERVAL_MS = 900;
 
-  // Prefix -> parsed suffix map. A cache is not just a speed trick here: a
+  // Maps a prefix to its parsed suffix list. A cache is not just a speed trick here: a
   // repeated check of the same password produces ZERO extra network traffic,
   // so retyping does not leak an additional query for the same prefix.
   const rangeCache = new Map();
@@ -44,11 +44,11 @@
   }
 
   /**
-   * Parse the API's text body into a Map of "SUFFIX" -> count.
+   * Parse the API's text body into a Map from "SUFFIX" to its count.
    *
    * Body format is one entry per line: `SUFFIX35CHARS:COUNT`
    *
-   * Entries with a count of 0 are PADDING (see below) and are dropped — if we
+   * Entries with a count of 0 are PADDING (see below) and are dropped. If we
    * kept them we would report "found in 0 breaches", which is a false
    * positive.
    */
@@ -76,9 +76,9 @@
   }
 
   /**
-   * Fetch every breached-hash suffix sharing this 5-char prefix.
+   * Fetch every breached hash suffix sharing this 5 character prefix.
    *
-   * `Add-Padding: true` asks HIBP to bulk the response out with fake zero-count
+   * `Add-Padding: true` asks HIBP to bulk the response out with fake zero count
    * entries. Without it, the *size* of the encrypted response is a side channel:
    * a network observer who knows the response length can narrow down which
    * prefix was requested. With it, all responses look alike. If the header is
@@ -101,7 +101,7 @@
       return { ...hit, cached: true, url, throttledMs: 0 };
     }
 
-    // Client-side rate limit.
+    // Client side rate limit.
     const sinceLast = Date.now() - lastRequestAt;
     let throttledMs = 0;
     if (sinceLast < MIN_REQUEST_INTERVAL_MS) {
@@ -146,8 +146,8 @@
   async function checkPassword(password) {
     const { hash, engine } = await global.Sha1.sha1Hex(password);
 
-    const prefix = hash.slice(0, 5);  // <- the ONLY part that is transmitted
-    const suffix = hash.slice(5);     // <- stays in this tab, forever
+    const prefix = hash.slice(0, 5);  // the ONLY part that is transmitted
+    const suffix = hash.slice(5);     // stays in this tab, forever
 
     const range = await fetchRange(prefix);
     const count = range.suffixes.get(suffix) || 0;

@@ -1,17 +1,17 @@
 /*
- * styles.css — dark, terminal-flavoured security-tool aesthetic.
+ * styles.css: a dark, terminal flavoured security tool aesthetic.
  *
  * Palette intent:
- *   bg     near-black slate, not pure #000 (pure black crushes on OLED demos)
+ *   bg     near black slate, not pure #000 (pure black crushes on OLED demos)
  *   text   warm grey, comfortable for long monospace reads
- *   accent phosphor green   — the "sent" / neutral-good colour
- *   alert  amber-red        — a breach hit
- *   safe   cyan-green       — no hit
- *   muted  desaturated blue — the "kept local" colour
+ *   accent phosphor green:   the "sent" / neutral good colour
+ *   alert  amber red:        a breach hit
+ *   safe   cyan green:       no hit
+ *   muted  desaturated blue: the "kept local" colour
  *
  * Colour is never the only signal: every state also changes wording and a
  * left border, so the tool still reads correctly in a grayscale screenshot
- * or for a colour-blind interviewer.
+ * or for an interviewer who is colour blind.
  */
 
 :root {
@@ -25,9 +25,9 @@
   --text-dim:   #7d8c86;
   --text-faint: #55605c;
 
-  --accent:     #3ef08a;   /* phosphor green — transmitted / active */
+  --accent:     #3ef08a;   /* phosphor green: transmitted / active */
   --accent-dim: #1f7a48;
-  --kept:       #4fb3d9;   /* blue — stays local */
+  --kept:       #4fb3d9;   /* blue: stays local */
   --alert:      #ff5f56;   /* breach found */
   --warn:       #e8b64c;
   --safe:       #3ef08a;
